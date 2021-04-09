@@ -37,9 +37,7 @@ MouseDriver::MouseDriver(InterruptManager* manager, MouseEventHandler* handler)
 dataport(0x60),
 commandport(0x64)
 {
-    printf("mouse drive initilizer!");
     this->handler = handler;
-
 }
 
 MouseDriver::~MouseDriver()
@@ -65,7 +63,6 @@ void MouseDriver::Activate()
 
 uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 {
-    printf("\n--Mouse handler--");
     uint8_t status = commandport.Read();
     if(!(status & 0x20) || handler == 0)
         return esp;

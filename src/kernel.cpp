@@ -2,6 +2,7 @@
 #include <common/types.h>
 #include <gdt.h>
 #include <hardwarecommunication/interrupts.h>
+#include <hardwarecommunication/pci.h>
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
@@ -127,7 +128,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     GlobalDescriptorTable gdt;
     InterruptManager interrupts(&gdt);
 
-    printf("\ninitializing Hardware, stage 1");
+    printf("\ninitializing Hardware, stage 1\n");
 
     DriverManager drvManager;
 
@@ -138,6 +139,9 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     MouseToConsole mouseHandler;
     MouseDriver mouse(&interrupts, &mouseHandler);
     drvManager.AddDriver(&mouse);
+
+    PeripheralComponentInterConnectController PCIController;
+    PCIController.SelectDrivers(&drvManager);
 
     printf("\ninitializing Hardware, stage 2");
     drvManager.ActivateAll();
