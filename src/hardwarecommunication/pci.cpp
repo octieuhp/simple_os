@@ -53,7 +53,7 @@ bool PeripheralComponentInterConnectController::DeviceHasFunction(uint16_t bus, 
     return Read(bus, device, 0, 0x0E) & (1<<7);
 }
 
-void PeripheralComponentInterConnectController::SelectDrivers(DriverManager* driverManager)
+void PeripheralComponentInterConnectController::SelectDrivers(DriverManager* driverManager, InterruptManager* interrupts)
 {
     for(int bus = 0; bus < 8; bus++)
     {
@@ -66,6 +66,17 @@ void PeripheralComponentInterConnectController::SelectDrivers(DriverManager* dri
                 
                 if(dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF)
                     continue;
+
+                for(int barNum=0; barNum < 6; barNum++)
+                {
+                    BaseAddressRegister bar = GetBaseAddressRegister(bus, device, function, barNum);
+                    if(bar.address && (bar.type == InputOutput))
+                        dev.portBase = (uint32_t)bar.address;
+                    
+                    Driver* driver = GetDriver(dev, interrupts);
+                    if(driver != 0)
+                        driverManager->AddDriver(driver);
+                }
 
                 printf("PCI BUS ");
                 printfHex(bus & 0xFF);
@@ -86,6 +97,72 @@ void PeripheralComponentInterConnectController::SelectDrivers(DriverManager* dri
             }
         }
     }
+}
+
+BaseAddressRegister PeripheralComponentInterConnectController::GetBaseAddressRegister(uint16_t bus, uint16_t device, uint16_t function, uint16_t bar)
+{
+    BaseAddressRegister result;
+
+    uint32_t headertype = Read(bus, device, function, 0x0E) & 0x7F;
+    int maxBARs = 6 - (4*headertype);
+    if(bar >= maxBARs)
+        return result;
+
+    uint32_t bar_value = Read(bus, device, function, 0x10 + 4*bar);
+    result.type = (bar_value & 0x1) ? InputOutput : MemoryMapping;
+    uint32_t temp;
+
+    if(result.type = MemoryMapping)
+    {
+        switch ((bar_value >> 1) & 0x3)
+        {
+        case 0: //32 bit mode
+        case 1: //20 bit mode
+        case 2: // 54 bit mode
+        
+        default:
+            break;
+        }
+    }
+    else
+    {
+        result.address = (uint8_t*)(bar_value & ~0x3);
+        result.perfectchable = false;
+    }
+    
+
+}
+
+Driver* PeripheralComponentInterConnectController::GetDriver(PeripheralComponentInterConnectDeviceDescriptor dev, InterruptManager* interrupts)
+{
+    switch(dev.vendor_id)
+    {
+        case 0x1022: // AMD
+            switch (dev.device_id)
+            {
+                case 0x2000: // am79c973
+                    printf("AMD am79c973");
+                    break;
+            }
+            break;
+        case 0x8086: //intel
+            break;
+    }
+
+    switch (dev.class_id)
+    {
+        case 0x03: // graphic
+            switch(dev.subclass_id)
+            {
+                case 0x00: //VGA
+                    printf("VGA ");
+                    break;
+            }
+            break;
+    }
+
+    return 0;
+
 }
 
 PeripheralComponentInterConnectDeviceDescriptor PeripheralComponentInterConnectController::GetDeviceDescriptor(uint16_t bus, uint16_t device, uint16_t function)

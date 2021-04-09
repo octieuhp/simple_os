@@ -10,6 +10,20 @@ namespace myos
 {
     namespace hardwarecommunication
     {
+        enum BaseAddressRegisterType
+        {
+            MemoryMapping = 0,
+            InputOutput = 1
+        };
+
+        class BaseAddressRegister
+        {
+        public:
+            bool perfectchable;
+            myos::common::uint8_t* address;
+            myos::common::uint32_t* size;
+            BaseAddressRegisterType type;
+        };
 
         class PeripheralComponentInterConnectDeviceDescriptor
         {
@@ -46,8 +60,10 @@ namespace myos
             void Write(common::uint16_t bus, common::uint16_t device, common::uint16_t function, common::int32_t registeroffset, common::int32_t value);
             bool DeviceHasFunction(common::uint16_t bus, common::uint16_t device);
 
-            void SelectDrivers(drivers::DriverManager* driverManager);
+            void SelectDrivers(drivers::DriverManager* driverManager, myos::hardwarecommunication::InterruptManager* interrupts);
+            myos::drivers::Driver* GetDriver(PeripheralComponentInterConnectDeviceDescriptor dev, myos::hardwarecommunication::InterruptManager* interupts);
             PeripheralComponentInterConnectDeviceDescriptor GetDeviceDescriptor(common::uint16_t bus, common::uint16_t device, common::uint16_t function);
+            BaseAddressRegister GetBaseAddressRegister(myos::common::uint16_t bus, myos::common::uint16_t device, myos::common::uint16_t function, myos::common::uint16_t bar);
         };
     }
 }
