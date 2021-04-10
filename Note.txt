@@ -1,0 +1,4 @@
+
+osdev.org
+source code: files.osdev.org
+Guiframework Basics: https://en.wikipedia.org//wiki/bresenham%27s_line_algorithm
