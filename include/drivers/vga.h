@@ -27,7 +27,7 @@ namespace myos
             void WriteRegisters(common::uint8_t* registers);
             common::uint8_t* GetFrameBufferSegment();
 
-            virtual void PutPixel(common::uint32_t x, common::uint32_t y, common::int8_t colorIndex);
+            virtual void PutPixel(common::int32_t x, common::int32_t y, common::int8_t colorIndex);
     
         public:
             VideoGraphicsArray();
@@ -35,7 +35,7 @@ namespace myos
 
             virtual bool SupportsMode(common::uint32_t width, common::uint32_t height, common::uint32_t colordepth);
             virtual bool SetMode(common::uint32_t width, common::uint32_t height, common::uint32_t colordepth);
-            virtual void PutPixel(common::uint32_t x, common::uint32_t y, common::uint8_t r, common::uint8_t g, common::uint8_t b);
+            virtual void PutPixel(common::int32_t x, common::int32_t y, common::uint8_t r, common::uint8_t g, common::uint8_t b);
             virtual common::uint8_t GetColorIndex(common::uint8_t r, common::uint8_t g, common::uint8_t b);
 
             virtual void FillRectangle(common::uint32_t x, common::uint32_t y, common::uint32_t w, common::uint32_t h, common::uint8_t r, common::uint8_t g, common::uint8_t b);

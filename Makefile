@@ -12,6 +12,9 @@ objects = obj/loader.o \
 		  obj/drivers/mouse.o \
 		  obj/drivers/driver.o \
 		  obj/drivers/vga.o \
+		  obj/gui/window.o \
+		  obj/gui/widget.o \
+		  obj/gui/desktop.o \
 		  obj/kernel.o
 
 obj/%.o: src/%.cpp
