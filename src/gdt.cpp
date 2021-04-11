@@ -26,7 +26,7 @@ uint16_t GlobalDescriptorTable::DataSegmentSelector()
     return (uint8_t*)&dataSegmentSelector - (uint8_t*)this;
 }
 
-uint16_t GlobalDescriptorTable::CodeSegmentSelector()
+uint32_t GlobalDescriptorTable::CodeSegmentSelector()
 {
     return (uint8_t*)&codeSegmentSelector - (uint8_t*)this;
 }

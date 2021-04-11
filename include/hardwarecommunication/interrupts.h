@@ -2,9 +2,10 @@
 #ifndef __HARDWARECOMMUNINCATION__INTERRRUPTS_H
 #define __HARDWARECOMMUNINCATION__INTERRRUPTS_H
 
-#include "common/types.h"
-#include "hardwarecommunication/port.h"
-#include "gdt.h"
+#include <common/types.h>
+#include <hardwarecommunication/port.h>
+#include <gdt.h>
+#include <multitasking.h>
 
 namespace myos
 {
@@ -31,6 +32,9 @@ namespace myos
 
             static InterruptManager* ActiveInterruptManager;
             InterruptHandler* handlers[256];
+            TaskManager* taskManager;
+            common::uint16_t hardwareInterruptOffset;
+
             struct GateDescriptor
             {
                 myos::common::uint16_t handleAddressLowBits;
@@ -64,7 +68,7 @@ namespace myos
 
         public:
 
-            InterruptManager(GlobalDescriptorTable* gdt);
+            InterruptManager(common::uint16_t hardwareInterruptOffset, GlobalDescriptorTable* gdt, myos::TaskManager* taskManager);
             ~InterruptManager();
 
             void Activate();
@@ -74,9 +78,51 @@ namespace myos
             myos::common::uint32_t DoHandleInterrupt(myos::common::uint8_t interruptNumber, myos::common::uint32_t esp);
 
             static void IgnoreInterruptRequest();
+/*             static void HandleInterruptRequest0x00();
+            static void HandleInterruptRequest0x01();
+            static void HandleInterruptRequest0x0C(); */
+
             static void HandleInterruptRequest0x00();
             static void HandleInterruptRequest0x01();
+            static void HandleInterruptRequest0x02();
+            static void HandleInterruptRequest0x03();
+            static void HandleInterruptRequest0x04();
+            static void HandleInterruptRequest0x05();
+            static void HandleInterruptRequest0x06();
+            static void HandleInterruptRequest0x07();
+            static void HandleInterruptRequest0x08();
+            static void HandleInterruptRequest0x09();
+            static void HandleInterruptRequest0x0A();
+            static void HandleInterruptRequest0x0B();
             static void HandleInterruptRequest0x0C();
+            static void HandleInterruptRequest0x0D();
+            static void HandleInterruptRequest0x0E();
+            static void HandleInterruptRequest0x0F();
+            static void HandleInterruptRequest0x31();
+
+            static void HandleInterruptRequest0x80();
+
+            //Exception handler
+/*             static void HandleException0x00();
+            static void HandleException0x01();
+            static void HandleException0x02();
+            static void HandleException0x03();
+            static void HandleException0x04();
+            static void HandleException0x05();
+            static void HandleException0x06();
+            static void HandleException0x07();
+            static void HandleException0x08();
+            static void HandleException0x09();
+            static void HandleException0x0A();
+            static void HandleException0x0B();
+            static void HandleException0x0C();
+            static void HandleException0x0D();
+            static void HandleException0x0E();
+            static void HandleException0x0F();
+            static void HandleException0x10();
+            static void HandleException0x11();
+            static void HandleException0x12();
+            static void HandleException0x13(); */
         };
     }
 }

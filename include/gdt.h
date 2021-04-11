@@ -30,7 +30,7 @@ namespace myos
         GlobalDescriptorTable();
         ~GlobalDescriptorTable();
 
-        myos::common::uint16_t CodeSegmentSelector();
+        myos::common::uint32_t CodeSegmentSelector();
         myos::common::uint16_t DataSegmentSelector();
     };    
 }

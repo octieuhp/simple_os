@@ -9,8 +9,9 @@
 #include <drivers/vga.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
+#include <multitasking.h>
 
-//#define GRAPHICSMODE
+// #define GRAPHICSMODE
 
 using namespace myos;
 using namespace myos::common;
@@ -118,6 +119,18 @@ public:
     }
 };
 
+void taskA()
+{
+    while(true)
+        printf("B");
+}
+
+void taskB()
+{
+    while(true)
+        printf("A");
+}
+
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
@@ -132,38 +145,55 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     printf("Hello World ( from myos)");
     printf("\nHello world form line 2 ^_^.");  
     GlobalDescriptorTable gdt;
-    InterruptManager interrupts(&gdt);
+
+    TaskManager taskManager;
+    Task task1(&gdt, taskA);
+    Task task2(&gdt, taskB);
+    taskManager.AddTask(&task1);
+    taskManager.AddTask(&task2);
+
+    InterruptManager interrupts(0x20, &gdt, &taskManager);
 
     printf("\ninitializing Hardware, stage 1\n");
-    Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
+
+    #ifdef GRAPHICSMODE
+        Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
+    #endif
 
     DriverManager drvManager;
 
-/*     PrintfKeyboardEventHandler kbHandler;
-    KeyboardDriver keyboard(&interrupts, &kbHandler); */
-    KeyboardDriver keyboard(&interrupts, &desktop);
+    #ifndef GRAPHICSMODE
+        PrintfKeyboardEventHandler kbHandler;
+        KeyboardDriver keyboard(&interrupts, &kbHandler);
+    #else
+        KeyboardDriver keyboard(&interrupts, &desktop);
+    #endif
     drvManager.AddDriver(&keyboard);
 
-/*     MouseToConsole mouseHandler;
-    MouseDriver mouse(&interrupts, &mouseHandler); */
-    MouseDriver mouse(&interrupts, &desktop);
+    #ifndef GRAPHICSMODE
+        MouseToConsole mouseHandler;
+        MouseDriver mouse(&interrupts, &mouseHandler);
+    #else
+        MouseDriver mouse(&interrupts, &desktop);
+    #endif
     drvManager.AddDriver(&mouse);
 
     PeripheralComponentInterConnectController PCIController;
     PCIController.SelectDrivers(&drvManager, &interrupts);
-
-    VideoGraphicsArray vga;
 
     printf("\ninitializing Hardware, stage 2");
     drvManager.ActivateAll();
 
     printf("\ninitializing Hardware, stage 3");
     
-    vga.SetMode(320, 200, 8);
-    Window win1(&desktop, 10, 10, 20, 20, 0x00, 0xA8, 0x00);
-    desktop.AddChild(&win1);
-    Window win2(&desktop, 40, 15, 30, 30, 0x00, 0x00, 0x00);
-    desktop.AddChild(&win2);
+    #ifdef GRAPHICSMODE
+        VideoGraphicsArray vga;
+        vga.SetMode(320, 200, 8);
+        Window win1(&desktop, 10, 10, 20, 20, 0x00, 0xA8, 0x00);
+        desktop.AddChild(&win1);
+        Window win2(&desktop, 40, 15, 30, 30, 0x00, 0x00, 0x00);
+        desktop.AddChild(&win2);
+    #endif
 
     //Desktop desktop(320, 200, 0x00, 0x00, 0x00);
     //Desktop desktop(320, 200, 0xFF, 0xFF, 0xFF);
@@ -171,6 +201,8 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     
     while(1)
     {
-        desktop.Draw(&vga);
+        #ifdef GRAPHICSMODE
+            desktop.Draw(&vga);
+        #endif
     };
 }
