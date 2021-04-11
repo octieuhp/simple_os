@@ -2,3 +2,5 @@
 osdev.org
 source code: files.osdev.org
 Guiframework Basics: https://en.wikipedia.org//wiki/bresenham%27s_line_algorithm
+
+font: http://files.osdev.org/mirrors/geezer/osd/graphics/modes.c
