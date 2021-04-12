@@ -164,7 +164,6 @@ uint32_t InterruptManager::handleInterrupt(uint8_t interruptNumber, uint32_t esp
 
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
-    printf("interruptAAAAAAAAAAAAAAAAAAAAA\n");
     if(handlers[interruptNumber] != 0)
     {
         esp = handlers[interruptNumber]->HandleInterrupt(esp);

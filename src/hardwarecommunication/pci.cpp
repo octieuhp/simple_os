@@ -1,4 +1,6 @@
 #include <hardwarecommunication/pci.h>
+#include <memorymanagement.h>
+
 using namespace myos::common;
 using namespace myos::hardwarecommunication;
 using namespace myos::drivers;
@@ -16,12 +18,10 @@ PeripheralComponentInterConnectController::PeripheralComponentInterConnectContro
 : dataPort(0xCFC),
   commandport(0xCF8)
 {
-
 }
 
 PeripheralComponentInterConnectController::~PeripheralComponentInterConnectController()
 {
-
 }
 
 uint32_t PeripheralComponentInterConnectController::Read(int16_t bus, int16_t device, int16_t function, uint32_t registeroffset)
@@ -129,18 +129,20 @@ BaseAddressRegister PeripheralComponentInterConnectController::GetBaseAddressReg
         result.address = (uint8_t*)(bar_value & ~0x3);
         result.perfectchable = false;
     }
-    
-
 }
 
 Driver* PeripheralComponentInterConnectController::GetDriver(PeripheralComponentInterConnectDeviceDescriptor dev, InterruptManager* interrupts)
 {
+    Driver* driver = 0;
     switch(dev.vendor_id)
     {
         case 0x1022: // AMD
             switch (dev.device_id)
             {
                 case 0x2000: // am79c973
+                    driver = (amd_am79c973*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+                    if(driver != 0)
+                        new (driver)amd_am73c973(...);
                     printf("AMD am79c973");
                     break;
             }
