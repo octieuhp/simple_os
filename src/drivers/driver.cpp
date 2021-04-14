@@ -12,8 +12,12 @@ Driver::~Driver()
 
 }
 
+void printf(char*);
+
 void Driver::Activate()
 {
+    printf("ACTIVATE DRIVER------------------");
+    
 
 }
 int Driver::Reset()

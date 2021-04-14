@@ -4,7 +4,10 @@
 #include <hardwarecommunication/port.h>
 #include <common/types.h>
 #include <hardwarecommunication/interrupts.h>
+#include <hardwarecommunication/pci.h>
 #include <drivers/driver.h>
+//#include <drivers/amd_am79c973.h>
+#include <memorymanagement.h>
 
 namespace myos
 {

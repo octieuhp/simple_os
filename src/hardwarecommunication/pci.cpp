@@ -1,5 +1,6 @@
 #include <hardwarecommunication/pci.h>
 #include <memorymanagement.h>
+#include <drivers/amd_am79c973.h>
 
 using namespace myos::common;
 using namespace myos::hardwarecommunication;
@@ -15,8 +16,8 @@ PeripheralComponentInterConnectDeviceDescriptor::~PeripheralComponentInterConnec
 {}
 
 PeripheralComponentInterConnectController::PeripheralComponentInterConnectController()
-: dataPort(0xCFC),
-  commandport(0xCF8)
+: dataPort(0x0CFC),
+  commandport(0x0CF8)
 {
 }
 
@@ -43,7 +44,7 @@ void PeripheralComponentInterConnectController::Write(uint16_t bus, uint16_t dev
         | ((bus &0xFF) << 16)
         | ((device & 0x1F) << 11)
         | ((function & 0x07) << 8)
-        | (registeroffset & 0xFc);
+        | (registeroffset & 0xFC);
     commandport.Write(id);
     dataPort.Write(value);
 }
@@ -71,11 +72,13 @@ void PeripheralComponentInterConnectController::SelectDrivers(DriverManager* dri
                 {
                     BaseAddressRegister bar = GetBaseAddressRegister(bus, device, function, barNum);
                     if(bar.address && (bar.type == InputOutput))
-                        dev.portBase = (uint32_t)bar.address;
-                    
-                    Driver* driver = GetDriver(dev, interrupts);
-                    if(driver != 0)
-                        driverManager->AddDriver(driver);
+                        dev.portBase = (uint32_t)bar.address;                            
+                }
+
+                Driver* driver = GetDriver(dev, interrupts);
+                if(driver != 0)
+                {
+                    driverManager->AddDriver(driver);
                 }
 
                 printf("PCI BUS ");
@@ -112,7 +115,7 @@ BaseAddressRegister PeripheralComponentInterConnectController::GetBaseAddressReg
     result.type = (bar_value & 0x1) ? InputOutput : MemoryMapping;
     uint32_t temp;
 
-    if(result.type = MemoryMapping)
+    if(result.type == MemoryMapping) // can't jump in to handleInterupt AMD if (==) = (=)
     {
         switch ((bar_value >> 1) & 0x3)
         {
@@ -129,6 +132,21 @@ BaseAddressRegister PeripheralComponentInterConnectController::GetBaseAddressReg
         result.address = (uint8_t*)(bar_value & ~0x3);
         result.perfectchable = false;
     }
+
+    return result; // if not return also can't jump into AMD interrupt HANDLER
+}
+
+void printfHex32(uint32_t key)
+{
+/*     char* foo = "00000000";
+    char* hex = "0123456789ABCDEF";
+    foo[0] = hex[(key >> 28) & 0x0000F];
+    foo[1] = hex[key&0x0F];
+    printf(foo); */
+    printfHex((key >> 24) & 0xFF);
+    printfHex((key >> 16) & 0xFF);
+    printfHex((key >> 8) & 0xFF);
+    printfHex(key & 0xFF);
 }
 
 Driver* PeripheralComponentInterConnectController::GetDriver(PeripheralComponentInterConnectDeviceDescriptor dev, InterruptManager* interrupts)
@@ -140,10 +158,11 @@ Driver* PeripheralComponentInterConnectController::GetDriver(PeripheralComponent
             switch (dev.device_id)
             {
                 case 0x2000: // am79c973
-                    driver = (amd_am79c973*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+                    printf("AMD am79c973\n");
+                    driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
                     if(driver != 0)
-                        new (driver)amd_am73c973(...);
-                    printf("AMD am79c973");
+                        new (driver) amd_am79c973(&dev, interrupts);
+                    return driver;
                     break;
             }
             break;

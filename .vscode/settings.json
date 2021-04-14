@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstddef": "cpp",
+        "cstdlib": "cpp",
+        "limits": "cpp",
+        "cstdint": "cpp"
+    }
+}

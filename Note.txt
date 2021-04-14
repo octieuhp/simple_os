@@ -6,3 +6,9 @@ Guiframework Basics: https://en.wikipedia.org//wiki/bresenham%27s_line_algorithm
 font: http://files.osdev.org/mirrors/geezer/osd/graphics/modes.c
 
 Dynamic memory management / heap: gnu.org/software/grub/manual/multiboot
+
+Networking: 
+    AMD PCnet lowlevel.eu
+    initialization block is to hold pointer to the array of BufferDescriptors, w
+        which hold the pointers to the buffers.
+    fix bug error can't jump into AMD interrupt handler. ( function getbaseResgister in PCI driver).

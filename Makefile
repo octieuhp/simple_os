@@ -5,6 +5,7 @@ LDPARAMS = -melf_i386
 objects = obj/loader.o \
 		  obj/gdt.o \
 		  obj/multitasking.o \
+		  obj/drivers/amd_am79c973.o \
 		  obj/memorymanagement.o \
 		  obj/hardwarecommunication/port.o \
 		  obj/hardwarecommunication/interruptstubs.o \

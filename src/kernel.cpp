@@ -11,6 +11,7 @@
 #include <gui/window.h>
 #include <multitasking.h>
 #include <memorymanagement.h>
+#include <drivers/amd_am79c973.h>
 
 // #define GRAPHICSMODE
 
@@ -151,19 +152,28 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     size_t heap = 10*1024*1024;
     MemoryManager memoryManager(heap, (*memupper)*1024 - heap - 10*1024);
 
-    printf("heap: 0x");
+    printf("\nheap: 0x");
     printfHex((heap >> 24) & 0xFF);
     printfHex((heap >> 16) & 0xFF);
     printfHex((heap >> 8) & 0xFF);
     printfHex((heap ) & 0xFF);
 
-    void* allocated = memoryManager.malloc(1024);
-    printf("\nallocated: 0x");
+    void* allocated; // = memoryManager.malloc(10);
+    /* printf("\nallocated: 0x");
     printfHex(((size_t)allocated >> 24) & 0xFF);
     printfHex(((size_t)allocated >> 16) & 0xFF);
     printfHex(((size_t)allocated >> 8) & 0xFF);
     printfHex(((size_t)allocated ) & 0xFF);
-    printf("\n\n");
+    printf("\n\n"); */
+
+    //allocated = memoryManager.malloc(sizeof(amd_am79c973));
+    //allocated = memoryManager.malloc(0);
+/*     printf("\nallocated AMD: 0x");
+    printfHex(((size_t)allocated >> 24) & 0xFF);
+    printfHex(((size_t)allocated >> 16) & 0xFF);
+    printfHex(((size_t)allocated >> 8) & 0xFF);
+    printfHex(((size_t)allocated ) & 0xFF);
+    printf("\n\n"); */
 
     TaskManager taskManager;
 /*     Task task1(&gdt, taskA);

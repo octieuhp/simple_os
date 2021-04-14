@@ -71,6 +71,7 @@ namespace myos
             InterruptManager(common::uint16_t hardwareInterruptOffset, GlobalDescriptorTable* gdt, myos::TaskManager* taskManager);
             ~InterruptManager();
 
+            common::uint16_t HardwareInterruptOffset();
             void Activate();
             void Deactivate();
 

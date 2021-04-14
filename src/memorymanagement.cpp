@@ -1,4 +1,6 @@
 #include <memorymanagement.h>
+
+
 using namespace myos;
 using namespace myos::common;
 
@@ -87,14 +89,14 @@ void MemoryManager::free(void* ptr)
     }
 }
 
-void* operator new(size_t size)
+void* operator new(unsigned size)
 {
     if(MemoryManager::activeMemoryManager == 0)
         return 0;
     return MemoryManager::activeMemoryManager->malloc(size);
 }
 
-void* operator new[](size_t size)
+void* operator new[](unsigned size)
 {
     if(MemoryManager::activeMemoryManager == 0)
         return 0;
@@ -102,12 +104,12 @@ void* operator new[](size_t size)
 }
 
 //placement new
-void* operator new(size_t size, void* prt)
+void* operator new(unsigned size, void* ptr)
 {
     return ptr;
 }
 
-void* operator new[](size_t size, void* ptr)
+void* operator new[](unsigned size, void* ptr)
 {
     return ptr;
 }
