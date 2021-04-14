@@ -108,8 +108,6 @@ int amd_am79c973::Reset()
 
 uint32_t amd_am79c973::HandleInterrupt(uint32_t esp)
 {
-    printf("\nINTERRUPT FROM AMD am79c973\n");
-
     registerAddressPort.Write(0);
     uint32_t temp = registerDataPort.Read();
 
@@ -124,7 +122,7 @@ uint32_t amd_am79c973::HandleInterrupt(uint32_t esp)
     registerAddressPort.Write(0);
     registerDataPort.Write(temp);
 
-    if((temp & 0x0100) == 0x0100) printf("AMD am79c973 INIT DONE!!!!!!!!!!\n");
+    //if((temp & 0x0100) == 0x0100) printf("AMD am79c973 INIT DONE!!!!!!!!!!\n");
 
     return esp;
 
