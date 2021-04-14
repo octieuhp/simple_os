@@ -12,6 +12,7 @@
 #include <memorymanagement.h>
 #include <drivers/amd_am79c973.h>
 #include <drivers/ata.h>
+#include <systemcall.h>
 
 // #define GRAPHICSMODE
 
@@ -121,16 +122,21 @@ public:
     }
 };
 
+void sysprintf(char* str)
+{
+    asm("int $0x80" : : "a" (4), "b" (str));
+}
+
 void taskA()
 {
     while(true)
-        printf("B");
+        sysprintf("B");
 }
 
 void taskB()
 {
     while(true)
-        printf("A");
+        sysprintf("A");
 }
 
 typedef void (*constructor)();
@@ -176,12 +182,13 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     printf("\n\n"); */
 
     TaskManager taskManager;
-/*     Task task1(&gdt, taskA);
+    Task task1(&gdt, taskA);
     Task task2(&gdt, taskB);
     taskManager.AddTask(&task1);
-    taskManager.AddTask(&task2); */
+    taskManager.AddTask(&task2);
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
+    SyscallHandler syscalls(0x80, &interrupts);
 
     printf("\ninitializing Hardware, stage 1\n");
 

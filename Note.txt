@@ -17,3 +17,6 @@ Networking:
         page: 186-188 support.arm/TechDocs/10550.pdf
 
         in recv function: see page 184 
+
+systemcall:
+    docs.cs.up.ac.za/programming/asm/derick_tut/syscalls.html

@@ -7,8 +7,8 @@
 .global _ZN4myos21hardwarecommunication16InterruptManager22IgnoreInterruptRequestEv
 
 .macro HandleException num
-.global _ZN4myos21hardwarecommunication16InterruptManager16HandleException\num\()Ev
-_ZN4myos21hardwarecommunication16InterruptManager16HandleException\num\()Ev:
+.global _ZN4myos21hardwarecommunication16InterruptManager15HandleException\num\()Ev
+_ZN4myos21hardwarecommunication16InterruptManager15HandleException\num\()Ev:
     movb $\num, (interruptnumber)
     jmp int_bottom
 .endm
@@ -45,6 +45,8 @@ _ZN4myos21hardwarecommunication16InterruptManager26HandleInterruptRequest\num\()
 #HandleException 0x11
 #HandleException 0x12
 #HandleException 0x13
+
+#HandleException 0x80
 
 HandleInterruptRequest 0x00
 HandleInterruptRequest 0x01

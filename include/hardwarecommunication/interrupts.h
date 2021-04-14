@@ -124,6 +124,7 @@ namespace myos
             static void HandleException0x11();
             static void HandleException0x12();
             static void HandleException0x13(); */
+            //static void HandleException0x80();            
         };
     }
 }
