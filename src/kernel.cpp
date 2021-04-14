@@ -224,6 +224,11 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
         desktop.AddChild(&win2);
     #endif
 
+    // just for test
+    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // 0: keyboard - 1: mouse - 2 amd_am79c973 
+    eth0->Send((uint8_t*)"Hello Network", 13);
+
+
     //Desktop desktop(320, 200, 0x00, 0x00, 0x00);
     //Desktop desktop(320, 200, 0xFF, 0xFF, 0xFF);
     interrupts.Activate();

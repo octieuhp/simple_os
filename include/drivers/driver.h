@@ -18,7 +18,7 @@ namespace myos
 
         class DriverManager
         {
-        private:
+        public:
             Driver* drivers[256];
             int numDrivers;
         public:
