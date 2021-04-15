@@ -13,10 +13,12 @@
 #include <drivers/amd_am79c973.h>
 #include <drivers/ata.h>
 #include <systemcall.h>
+#include <net/etherframe.h>
 
 // #define GRAPHICSMODE
 
 using namespace myos;
+using namespace myos::net;
 using namespace myos::common;
 using namespace myos::drivers;
 using namespace myos::hardwarecommunication;
@@ -182,10 +184,10 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     printf("\n\n"); */
 
     TaskManager taskManager;
-    Task task1(&gdt, taskA);
+/*     Task task1(&gdt, taskA);
     Task task2(&gdt, taskB);
     taskManager.AddTask(&task1);
-    taskManager.AddTask(&task2);
+    taskManager.AddTask(&task2); */
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
     SyscallHandler syscalls(0x80, &interrupts);
@@ -232,7 +234,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     #endif
 
     //interrupt 14
-    AdvancedTechnologyAttachment ata0m(0x1F0, true);
+/*     AdvancedTechnologyAttachment ata0m(0x1F0, true);
     printf("ATA Primary Master: \n");
     ata0m.Itentify();
 
@@ -248,7 +250,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
 
     //interrpt 15
     AdvancedTechnologyAttachment ata1m(0x170, true);
-    AdvancedTechnologyAttachment ata1s(0x170, false);
+    AdvancedTechnologyAttachment ata1s(0x170, false); */
 
     // 3rd: 01E8
     // 4th: 0x168
@@ -256,6 +258,9 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     // just for test
 /*     amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // 0: keyboard - 1: mouse - 2 amd_am79c973 
     eth0->Send((uint8_t*)"Hello Network", 13); */
+    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
+    EtherFrameProvider etherframe(eth0);
+    etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*)"FOO", 3);
 
 
     //Desktop desktop(320, 200, 0x00, 0x00, 0x00);
