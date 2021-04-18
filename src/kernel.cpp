@@ -14,6 +14,7 @@
 #include <drivers/ata.h>
 #include <systemcall.h>
 #include <net/etherframe.h>
+#include <net/arp.h>
 
 // #define GRAPHICSMODE
 
@@ -23,6 +24,7 @@ using namespace myos::common;
 using namespace myos::drivers;
 using namespace myos::hardwarecommunication;
 using namespace myos::gui;
+using namespace myos::net;
 
 void printf(char* str)
 {
@@ -192,7 +194,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     InterruptManager interrupts(0x20, &gdt, &taskManager);
     SyscallHandler syscalls(0x80, &interrupts);
 
-    printf("\ninitializing Hardware, stage 1\n");
+    printf("\ninitializing Hardware, stage 1");
 
     #ifdef GRAPHICSMODE
         Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
@@ -216,10 +218,11 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     #endif
     drvManager.AddDriver(&mouse);
 
-    PeripheralComponentInterConnectController PCIController;
+    // origin PeripheralComponentInterConnectController PCIController;
+    PeripheralComponentInterconnectController PCIController;
     PCIController.SelectDrivers(&drvManager, &interrupts);
 
-    printf("\ninitializing Hardware, stage 2");
+    printf("initializing Hardware, stage 2");
     drvManager.ActivateAll();
 
     printf("\ninitializing Hardware, stage 3");
@@ -255,17 +258,38 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     // 3rd: 01E8
     // 4th: 0x168
 
+    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+    uint32_t ip_be = ((uint32_t)ip4 << 24)
+                        | ((uint32_t)ip3 << 16)
+                        | ((uint32_t)ip2 << 8)
+                        | ((uint32_t)ip1);
+    
+    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
+    uint32_t gip_be = ((uint32_t)gip4 << 24)
+                        | ((uint32_t)gip3 << 16)
+                        | ((uint32_t)gip2 << 8)
+                        | ((uint32_t)gip1);
+
+    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
+    eth0->SetIPAddress(ip_be);
+
+    EtherFrameProvider etherFrame(eth0);
+
+    AddressResolutionProtocol arp(&etherFrame);
+
     // just for test
 /*     amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // 0: keyboard - 1: mouse - 2 amd_am79c973 
     eth0->Send((uint8_t*)"Hello Network", 13); */
-    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
+/*     amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
     EtherFrameProvider etherframe(eth0);
-    etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*)"FOO", 3);
+    etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*)"FOO", 3); */
 
 
     //Desktop desktop(320, 200, 0x00, 0x00, 0x00);
     //Desktop desktop(320, 200, 0xFF, 0xFF, 0xFF);
     interrupts.Activate();
+    printf("\n");
+    arp.Resolve(gip_be);
     
     while(1)
     {

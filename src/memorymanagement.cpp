@@ -45,10 +45,10 @@ void* MemoryManager::malloc(size_t size)
     
     if(result->size >= size + sizeof(MemoryChunk) + 1)
     {
-        result->allocated = true;
+/*         result->allocated = true;
     }
     else
-    {
+    { */
         MemoryChunk* temp = (MemoryChunk*)((size_t)result + sizeof(MemoryChunk) + size);
 
         temp->allocated = false;
