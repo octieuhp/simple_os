@@ -17,6 +17,7 @@
 #include <net/arp.h>
 #include <net/ipv4.h>
 #include <net/icmp.h>
+#include <net/udp.h>
 
 // #define GRAPHICSMODE
 
@@ -289,8 +290,8 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
                         | ((uint32_t)subnet2 << 8)
                         | ((uint32_t)subnet1);
     InternetProtocolProvider ipv4(&etherFrame, &arp, gip_be, subnet_be);
-
     InternetControlMessageProtocol icmp(&ipv4);
+    UserDatagramProtocolProvider udp(&ipv4);
 
     // just for test
 /*     amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // 0: keyboard - 1: mouse - 2 amd_am79c973 
@@ -307,6 +308,9 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     //arp.Resolve(gip_be);
     arp.BroadcastMACAddress(gip_be);
     icmp.RequestEchoReplay(gip_be);
+
+    UserDatagramProtocolSocket* udpsocket = udp.Connect(gip_be, 1234);
+    udpsocket->Send((uint8_t*)"Hello UDP!", 10);
     
     while(1)
     {
