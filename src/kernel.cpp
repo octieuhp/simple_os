@@ -15,6 +15,8 @@
 #include <systemcall.h>
 #include <net/etherframe.h>
 #include <net/arp.h>
+#include <net/ipv4.h>
+#include <net/icmp.h>
 
 // #define GRAPHICSMODE
 
@@ -258,24 +260,37 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     // 3rd: 01E8
     // 4th: 0x168
 
+    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
+
+    // ip address
     uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
     uint32_t ip_be = ((uint32_t)ip4 << 24)
                         | ((uint32_t)ip3 << 16)
                         | ((uint32_t)ip2 << 8)
                         | ((uint32_t)ip1);
-    
+
+    eth0->SetIPAddress(ip_be);
+
+    EtherFrameProvider etherFrame(eth0);
+
+    AddressResolutionProtocol arp(&etherFrame);
+
+    // ip getway
     uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
     uint32_t gip_be = ((uint32_t)gip4 << 24)
                         | ((uint32_t)gip3 << 16)
                         | ((uint32_t)gip2 << 8)
                         | ((uint32_t)gip1);
 
-    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
-    eth0->SetIPAddress(ip_be);
+    // subnet mask
+    uint8_t subnet1 = 255, subnet2 = 255, subnet3 = 255, subnet4 = 0;
+    uint32_t subnet_be = ((uint32_t)subnet4 << 24)
+                        | ((uint32_t)subnet3 << 16)
+                        | ((uint32_t)subnet2 << 8)
+                        | ((uint32_t)subnet1);
+    InternetProtocolProvider ipv4(&etherFrame, &arp, gip_be, subnet_be);
 
-    EtherFrameProvider etherFrame(eth0);
-
-    AddressResolutionProtocol arp(&etherFrame);
+    InternetControlMessageProtocol icmp(&ipv4);
 
     // just for test
 /*     amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // 0: keyboard - 1: mouse - 2 amd_am79c973 
@@ -288,8 +303,10 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     //Desktop desktop(320, 200, 0x00, 0x00, 0x00);
     //Desktop desktop(320, 200, 0xFF, 0xFF, 0xFF);
     interrupts.Activate();
-    printf("\n");
-    arp.Resolve(gip_be);
+    printf("\n\\n-\n\n\n\n\n\n\n\n\n\n");
+    //arp.Resolve(gip_be);
+    arp.BroadcastMACAddress(gip_be);
+    icmp.RequestEchoReplay(gip_be);
     
     while(1)
     {
