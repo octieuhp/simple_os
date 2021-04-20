@@ -18,6 +18,7 @@
 #include <net/ipv4.h>
 #include <net/icmp.h>
 #include <net/udp.h>
+#include <net/tcp.h>
 
 // #define GRAPHICSMODE
 
@@ -307,6 +308,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     InternetProtocolProvider ipv4(&etherFrame, &arp, gip_be, subnet_be);
     InternetControlMessageProtocol icmp(&ipv4);
     UserDatagramProtocolProvider udp(&ipv4);
+    TransmissionControlProtocolProvider  tcp(&ipv4);
 
     // just for test
 /*     amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // 0: keyboard - 1: mouse - 2 amd_am79c973 
@@ -322,15 +324,17 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     printf("\n\\n-\n\n\n\n\n\n\n\n\n\n");
     //arp.Resolve(gip_be);
     arp.BroadcastMACAddress(gip_be);
-    icmp.RequestEchoReplay(gip_be);
+    //icmp.RequestEchoReplay(gip_be);
 
-    PrintfUDPdEventHandler udpHandler;
+    tcp.Connect(gip_be, 1234);
+
+    //PrintfUDPdEventHandler udpHandler;
    /*  UserDatagramProtocolSocket* udpsocket = udp.Connect(gip_be, 1234);
     udp.Bind(udpsocket, &udpHandler);
     udpsocket->Send((uint8_t*)"Hello UDP!", 10); */
 
-    UserDatagramProtocolSocket* udpsocket = udp.Listen(1234);
-    udp.Bind(udpsocket, &udpHandler);
+    //UserDatagramProtocolSocket* udpsocket = udp.Listen(1234);
+    //udp.Bind(udpsocket, &udpHandler);
     
     while(1)
     {
