@@ -27,6 +27,7 @@ UserDatagramProtocolSocket::UserDatagramProtocolSocket(UserDatagramProtocolProvi
 {
     this->backend = backend;
     handler = 0;
+    listening = false;
 }
 UserDatagramProtocolSocket::~UserDatagramProtocolSocket()
 {
@@ -78,6 +79,16 @@ bool UserDatagramProtocolProvider::OnInternetProtocolReceived(uint32_t srcIP_BE,
     {
         if(sockets[i]->localPort == msg->dstPort
         && sockets[i]->localIP == dstIP_BE
+        && sockets[i]->listening)
+        {
+            socket = sockets[i];
+            socket->listening = false;
+            socket->remotePort = msg->srcPort;
+            socket->remoteIP = srcIP_BE;
+        }
+        
+        else if(sockets[i]->localPort == msg->dstPort
+        && sockets[i]->localIP == dstIP_BE
         && sockets[i]->remotePort == msg->srcPort
         && sockets[i]->remoteIP == srcIP_BE)
             socket = sockets[i];
@@ -110,6 +121,31 @@ UserDatagramProtocolSocket* UserDatagramProtocolProvider::Connect(uint32_t ip, u
 
     return socket;
 }
+
+UserDatagramProtocolSocket* UserDatagramProtocolProvider::Listen(uint16_t port)
+{
+    UserDatagramProtocolSocket* socket = (UserDatagramProtocolSocket*)MemoryManager::activeMemoryManager->malloc(sizeof(UserDatagramProtocolSocket));
+
+    if(socket != 0)
+    {
+        new (socket) UserDatagramProtocolSocket(this);
+        /* socket->remotePort = port;
+        socket->remoteIP = ip; */
+        socket->listening = true;
+        //socket->localPort = freePort++;
+        socket->localPort = port;
+        socket->localIP = backend->GetIPAddress();
+
+        socket->remotePort = ((socket->remotePort & 0xFF00) >> 8) | ((socket->remotePort & 0x00FF) << 8);
+        socket->localPort = ((socket->localPort & 0xFF00) >> 8) | ((socket->localPort & 0x00FF) << 8);
+
+        sockets[numSockets++] = socket;
+    }
+
+    return socket;
+}
+
+
 void UserDatagramProtocolProvider::Disconnect(UserDatagramProtocolSocket* socket)
 {
     for(uint16_t i = 0; i < numSockets && socket == 0; i++)
@@ -139,4 +175,9 @@ void UserDatagramProtocolProvider::Send(UserDatagramProtocolSocket* socket, uint
     InternetProtocolHandler::Send(socket->remoteIP, buffer, totalLength);
 
     MemoryManager::activeMemoryManager->free(buffer);
+}
+
+void UserDatagramProtocolProvider::Bind(UserDatagramProtocolSocket* socket, UserDatagramProtocolHandler* handler)
+{
+    socket->handler = handler;
 }

@@ -34,3 +34,6 @@ icmp.
 
 UDP
     test step: open port in host PC: netcat -u -4 -l 1234
+                                     netcat -u -4 127.0.0.1 1234
+
+TCP: TCP eFSM diagram wiki                                     

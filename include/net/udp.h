@@ -38,6 +38,7 @@ namespace myos
             common::uint32_t localIP;
             UserDatagramProtocolProvider* backend;
             UserDatagramProtocolHandler* handler;
+            bool listening;
         public:
             UserDatagramProtocolSocket(UserDatagramProtocolProvider*);
             ~UserDatagramProtocolSocket();
@@ -59,8 +60,11 @@ namespace myos
                                             common::uint8_t* internetprotocolPayload, common::uint32_t size);
             
             virtual UserDatagramProtocolSocket* Connect(common::uint32_t ip, common::uint16_t port);
+            virtual UserDatagramProtocolSocket* Listen(common::uint16_t port);
             virtual void Disconnect(UserDatagramProtocolSocket* socket);
             virtual void Send(UserDatagramProtocolSocket* socket, common::uint8_t* data, common::uint16_t size);
+
+            virtual void Bind(UserDatagramProtocolSocket* socket, UserDatagramProtocolHandler* handler);
         };
     }
 }

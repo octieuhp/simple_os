@@ -129,6 +129,21 @@ public:
     }
 };
 
+
+class PrintfUDPdEventHandler : public UserDatagramProtocolHandler
+{
+public:
+    void HandleUserDatagramProtocolMessage(UserDatagramProtocolSocket* socket, uint8_t* data, uint16_t size)
+    {
+        char* foo = " ";
+        for(int i = 0; i < size; i++)
+        {
+            foo[0] = data[i];
+            printf(foo);
+        }
+    }
+};
+
 void sysprintf(char* str)
 {
     asm("int $0x80" : : "a" (4), "b" (str));
@@ -309,8 +324,13 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     arp.BroadcastMACAddress(gip_be);
     icmp.RequestEchoReplay(gip_be);
 
-    UserDatagramProtocolSocket* udpsocket = udp.Connect(gip_be, 1234);
-    udpsocket->Send((uint8_t*)"Hello UDP!", 10);
+    PrintfUDPdEventHandler udpHandler;
+   /*  UserDatagramProtocolSocket* udpsocket = udp.Connect(gip_be, 1234);
+    udp.Bind(udpsocket, &udpHandler);
+    udpsocket->Send((uint8_t*)"Hello UDP!", 10); */
+
+    UserDatagramProtocolSocket* udpsocket = udp.Listen(1234);
+    udp.Bind(udpsocket, &udpHandler);
     
     while(1)
     {
