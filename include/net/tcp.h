@@ -24,7 +24,7 @@ namespace myos
             TIME_WAIT,
 
             CLOSE_WAIT,
-            LAST_ACK,
+            //LAST_ACK,
         };
 
         enum TransmissionControlProtocolFlag
@@ -74,7 +74,7 @@ namespace myos
         public:
             TransmissionControlProtocolHandler();
             ~TransmissionControlProtocolHandler();
-            virtual void HandleTransmissionControlProtocolMessage(TransmissionControlProtocolSocket* socket, common::uint8_t* data, common::uint16_t size);
+            virtual bool HandleTransmissionControlProtocolMessage(TransmissionControlProtocolSocket* socket, common::uint8_t* data, common::uint16_t size);
 
         };
 
@@ -94,7 +94,7 @@ namespace myos
         public:
             TransmissionControlProtocolSocket(TransmissionControlProtocolProvider*);
             ~TransmissionControlProtocolSocket();
-            virtual void HandlTransmissionControlProtocolMessage(common::uint8_t* data, common::uint16_t size);
+            virtual bool HandlTransmissionControlProtocolMessage(common::uint8_t* data, common::uint16_t size);
             virtual void Send(common::uint8_t* data, common::uint16_t size);
             virtual void Disconnect();
         };

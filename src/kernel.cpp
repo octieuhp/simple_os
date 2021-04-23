@@ -30,6 +30,8 @@ using namespace myos::hardwarecommunication;
 using namespace myos::gui;
 using namespace myos::net;
 
+char* httpResponse = "HTTP/1.1.200 0K\r\nServer:MyOS\r\nContent-Type: text/html\r\n\r\n<html><head><title>My Operating System</title></head><body><b>My Operating System</b> http://www.AlgorithBoy.me</body></html>\r\n";
+
 void printf(char* str)
 {
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
@@ -142,6 +144,40 @@ public:
             foo[0] = data[i];
             printf(foo);
         }
+    }
+};
+
+class PrintfTCPdEventHandler : public TransmissionControlProtocolHandler
+{
+public:
+    bool HandleTransmissionControlProtocolMessage(TransmissionControlProtocolSocket* socket, uint8_t* data, uint16_t size)
+    {
+        char* foo = " ";
+        for(int i = 0; i < size; i++)
+        {
+            foo[0] = data[i];
+            printf(foo);
+        }
+
+        if(size > 9 
+            && data[0] == 'G'
+            && data[1] == 'E'
+            && data[2] == 'T'
+            && data[3] == ' '
+            && data[4] == '/'
+            && data[5] == ' '
+            && data[6] == 'H'
+            && data[7] == 'T'
+            && data[8] == 'T'
+            && data[9] == 'P'
+        )
+        {
+            socket->Send((uint8_t*)httpResponse, 184);
+            socket->Disconnect();
+        }
+            return false;
+
+        return true;
     }
 };
 
@@ -321,12 +357,16 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
     //Desktop desktop(320, 200, 0x00, 0x00, 0x00);
     //Desktop desktop(320, 200, 0xFF, 0xFF, 0xFF);
     interrupts.Activate();
-    printf("\n\\n-\n\n\n\n\n\n\n\n\n\n");
+    printf("\n\\n-\n\n\n\n\n");
     //arp.Resolve(gip_be);
     arp.BroadcastMACAddress(gip_be);
     //icmp.RequestEchoReplay(gip_be);
 
-    tcp.Connect(gip_be, 1234);
+    //tcp.Connect(gip_be, 1234);
+    PrintfTCPdEventHandler tcpHandler;
+    TransmissionControlProtocolSocket* tcpSocket = tcp.Listen(1234);
+    tcp.Bind(tcpSocket, &tcpHandler);
+    //tcpSocket->Send((uint8_t*)"Hello TCP!", 10);
 
     //PrintfUDPdEventHandler udpHandler;
    /*  UserDatagramProtocolSocket* udpsocket = udp.Connect(gip_be, 1234);
