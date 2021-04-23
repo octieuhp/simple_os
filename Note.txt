@@ -37,4 +37,5 @@ UDP
                                      netcat -u -4 127.0.0.1 1234
 
 TCP: TCP eFSM diagram wiki  
-    tcp send function                                  
+    tcp send function
+    need review all about TCP and bug to truly understand the way TCP work                               
